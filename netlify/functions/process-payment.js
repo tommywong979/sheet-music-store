@@ -25,7 +25,7 @@ exports.handler = async (event) => {
       receipt_email: email
     });
 
-    const pdfUrl = 'https://drive.google.com/uc?export=download&id=YOUR_FILE_ID'; // Replace with your direct download URL
+    const pdfUrl = 'https://drive.google.com/file/d/1IQ0OEvVBuNwTj-AvvsfCSiaSNu8WnEjY/view?usp=drive_link'; // Replace with your direct download URL
     const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
     const pdfBuffer = Buffer.from(response.data);
 
