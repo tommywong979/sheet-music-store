@@ -1,10 +1,14 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const mailgun = require('mailgun-js');
 const axios = require('axios');
+const nodemailer = require('nodemailer');
 
-const mg = mailgun({
-  apiKey: process.env.MAILGUN_API_KEY.replace('key-', ''),
-  domain: process.env.MAILGUN_DOMAIN
+// Set up the Gmail transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS
+  }
 });
 
 exports.handler = async (event) => {
@@ -32,20 +36,22 @@ exports.handler = async (event) => {
       const pdfBuffer = Buffer.from(response.data);
 
       // Send the email with the PDF attachment
-      const data = {
-        from: 'tommynick979@gmail.com',
+      const mailOptions = {
+        from: process.env.GMAIL_USER,
         to: email,
         subject: 'Receipt - Your Sheet Music Purchase',
         text: `Thank you for your purchase of $1.00! Your sheet music is attached.\n\nTransaction ID: ${paymentIntent.id}\nDate: ${new Date(paymentIntent.created * 1000).toISOString()}`,
         html: `<p>Thank you for your purchase of $1.00! Your sheet music is attached.</p><p><strong>Transaction ID:</strong> ${paymentIntent.id}</p><p><strong>Date:</strong> ${new Date(paymentIntent.created * 1000).toISOString()}</p>`,
-        attachment: {
-          data: pdfBuffer,
-          filename: 'sheet_music.pdf',
-          contentType: 'application/pdf'
-        }
+        attachments: [
+          {
+            filename: 'sheet_music.pdf',
+            content: pdfBuffer,
+            contentType: 'application/pdf'
+          }
+        ]
       };
 
-      await mg.messages().send(data);
+      await transporter.sendMail(mailOptions);
     }
 
     return {
