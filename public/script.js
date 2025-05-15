@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const stripe = Stripe('pk_test_your_publishable_key'); // Replace with your test publishable key
+  const stripe = Stripe('pk_live_51ROEzrF53QJYUb5ikKn5mlfUeirYl2kYWSCIE5xmxwIQ5YCtVFIlbIKQejdNpXR9ZLfG1S3LcNMSoK7kmT7BjrTK00nQTOHhxW'); // Replace with your test publishable key
   const elements = stripe.elements();
 
   const cardElement = elements.create('card', {
