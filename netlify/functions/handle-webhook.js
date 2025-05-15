@@ -66,7 +66,7 @@ exports.handler = async (event) => {
       }
 
       // Download the PDF
-      const pdfUrl = 'https://tommywongsheetmusic.netlify.app/sheet_music.pdf';
+      const pdfUrl = 'https://tommywongsheetmusic.netlify.app/sheet-music.pdf';
       let pdfBuffer;
       try {
         console.log('Attempting to download PDF from:', pdfUrl);
