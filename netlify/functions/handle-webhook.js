@@ -51,13 +51,10 @@ exports.handler = async (event) => {
         };
       }
 
-      // Fetch the latest paymentIntent to ensure receipt_url is populated
-      const updatedPaymentIntent = await stripe.paymentIntents.retrieve(paymentIntent.id);
-
       // Fetch payment method details to get the card last 4 digits
       let cardLast4 = '4242'; // Default fallback
       try {
-        const paymentMethod = await stripe.paymentMethods.retrieve(updatedPaymentIntent.payment_method);
+        const paymentMethod = await stripe.paymentMethods.retrieve(paymentIntent.payment_method);
         if (paymentMethod.card) {
           cardLast4 = paymentMethod.card.last4;
         }
@@ -91,7 +88,7 @@ exports.handler = async (event) => {
       const mailOptions = {
         from: `"Tommy Wong's Sheet Music" <${process.env.GMAIL_USER}>`,
         to: email,
-        subject: 'Receipt from Tommy Wong\'s Sheet Music',
+        subject: 'Your Sheet Music Purchase Confirmation',
         text: `Tommy Wong's Sheet Music charged you ${currency} ${amount} on ${paymentDate}. Your sheet music is attached.\n\nTransaction ID: ${paymentIntent.id}`,
         html: `
           <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -100,10 +97,10 @@ exports.handler = async (event) => {
               <td align="center" style="padding: 20px;">
                 <h1 style="color: #333333; font-size: 24px; margin: 0;">Tommy Wong's Sheet Music</h1>
                 <p style="color: #333333; font-size: 16px; font-weight: bold; margin: 10px 0;">
-                  Tommy Wong's Sheet Music charged you ${currency} ${amount}
+                  Thank you for your purchase of ${currency} ${amount}
                 </p>
                 <p style="color: #666666; font-size: 14px; margin: 0;">
-                  You paid on ${paymentDate}
+                  Purchased on ${paymentDate}
                 </p>
               </td>
             </tr>
@@ -112,12 +109,16 @@ exports.handler = async (event) => {
             <tr>
               <td align="center" bgcolor="#f5f5f5" style="padding: 20px;">
                 <p style="color: #333333; font-size: 16px; font-weight: bold; margin: 0 0 10px;">
-                  Receipt from Tommy Wong's Sheet Music
+                  Purchase Confirmation
                 </p>
                 <p style="color: #333333; font-size: 24px; font-weight: bold; margin: 0 0 10px;">
                   ${currency} ${amount}
                 </p>
                 <table width="100%" cellpadding="8" cellspacing="0" border="0" style="font-size: 14px; color: #666666;">
+                  <tr>
+                    <td width="40%">Product:</td>
+                    <td>Sheet Music Delivery</td>
+                  </tr>
                   <tr>
                     <td width="40%">Amount paid:</td>
                     <td>${currency} ${amount}</td>
@@ -130,17 +131,14 @@ exports.handler = async (event) => {
                     <td width="40%">Payment method:</td>
                     <td>Card ending in ${cardLast4}</td>
                   </tr>
+                  <tr>
+                    <td width="40%">Transaction ID:</td>
+                    <td>${paymentIntent.id}</td>
+                  </tr>
                 </table>
-              </td>
-            </tr>
-
-            <!-- Button -->
-            <tr>
-              <td align="center" style="padding: 20px;">
-                <a href="${updatedPaymentIntent.receipt_url || 'https://tommywongsheetmusic.netlify.app/receipt'}" 
-                   style="display: inline-block; padding: 10px 20px; background-color: #6772e5; color: #ffffff; text-decoration: none; font-size: 14px; border-radius: 4px;">
-                  View your receipt
-                </a>
+                <p style="color: #666666; font-size: 14px; margin-top: 20px;">
+                  Your sheet music has been delivered as an attachment. Enjoy your music!
+                </p>
               </td>
             </tr>
 
