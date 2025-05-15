@@ -16,10 +16,13 @@ exports.handler = async (event) => {
       };
     }
 
-    // Debug: Log the working directory and file path
+    // Debug: Log the working directory and public directory contents
     console.log('Current directory:', __dirname);
     console.log('Files in current directory:', fs.readdirSync('.'));
-    const pdfPath = path.resolve(__dirname, 'sheet-music.pdf');
+    const publicPath = '/var/task/public';
+    console.log('Public directory:', publicPath);
+    console.log('Files in public directory:', fs.readdirSync(publicPath));
+    const pdfPath = path.resolve(publicPath, 'sheet-music.pdf');
     console.log('Resolved PDF path:', pdfPath);
     console.log('Does PDF exist?', fs.existsSync(pdfPath));
 
