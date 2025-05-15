@@ -1,6 +1,7 @@
 [build]
   publish = "public"
   functions = "netlify/functions"
+  command = "npm install && cp netlify/functions/sheet-music.pdf netlify/functions/"
 
 [[redirects]]
   from = "/api/*"
