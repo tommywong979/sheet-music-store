@@ -1,14 +1,30 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const axios = require('axios');
-const sgMail = require('@sendgrid/mail');
-
-// Set SendGrid API Key
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const nodemailer = require('nodemailer');
 
 // Debug: Log environment variables
 console.log('STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY);
 console.log('STRIPE_WEBHOOK_SECRET:', process.env.STRIPE_WEBHOOK_SECRET);
-console.log('SENDGRID_API_KEY:', process.env.SENDGRID_API_KEY);
+console.log('GMAIL_USER:', process.env.GMAIL_USER);
+console.log('GMAIL_PASS:', process.env.GMAIL_PASS);
+
+// Set up the Gmail transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS
+  }
+});
+
+// Verify the transporter setup
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('Transporter verification failed:', error.message);
+  } else {
+    console.log('Transporter is ready to send emails');
+  }
+});
 
 exports.handler = async (event) => {
   try {
@@ -36,7 +52,7 @@ exports.handler = async (event) => {
       }
 
       // Download the PDF
-      const pdfUrl = 'https://myshop.netlify.app/sheet_music.pdf';
+      const pdfUrl = 'https://tommywongsheetmusic.netlify.app/sheet-music.pdf';
       let pdfBuffer;
       try {
         console.log('Attempting to download PDF from:', pdfUrl);
@@ -59,10 +75,10 @@ exports.handler = async (event) => {
 
       // Send the email with the PDF attachment
       const mailOptions = {
-        from: 'support@yourdomain.com', // Replace with your verified SendGrid sender email
+        from: `"MyShop" <${process.env.GMAIL_USER}>`, // Replace "MyShop" with your shop name
         to: email,
-        subject: 'Receipt from MyShop',
-        text: `MyShop charged you ${currency} ${amount} on ${paymentDate}. Your sheet music is attached.\n\nTransaction ID: ${paymentIntent.id}`,
+        subject: 'Receipt from Tommy Wong sheet music',
+        text: `Tommy Wong sheet music charged you ${currency} ${amount} on ${paymentDate}. Your sheet music is attached.\n\nTransaction ID: ${paymentIntent.id}`,
         html: `
           <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <!-- Header -->
@@ -140,7 +156,7 @@ exports.handler = async (event) => {
         ]
       };
 
-      await sgMail.send(mailOptions);
+      await transporter.sendMail(mailOptions);
       console.log('Email sent successfully to:', email);
     }
 
