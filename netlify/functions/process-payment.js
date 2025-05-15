@@ -19,10 +19,7 @@ exports.handler = async (event) => {
       currency: 'usd',
       payment_method_types: ['card'],
       receipt_email: email,
-      automatic_payment_methods: {
-        enabled: true,
-        allow_redirects: 'never'
-      },
+    
     });
 
     const msg = {
