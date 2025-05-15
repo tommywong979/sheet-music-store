@@ -1,58 +1,49 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const stripe = Stripe('pk_live_51ROEzrF53QJYUb5ikKn5mlfUeirYl2kYWSCIE5xmxwIQ5YCtVFIlbIKQejdNpXR9ZLfG1S3LcNMSoK7kmT7BjrTK00nQTOHhxW'); // Replace with your test publishable key
-  const elements = stripe.elements();
+import { loadStripe } from '@stripe/stripe-js/pure';
 
-  const cardElement = elements.create('card', {
-    style: {
-      base: {
-        fontSize: '16px',
-        color: '#32325d',
-      }
-    },
-    hidePostalCode: true // Hides the postal code field
-  });
+// Disable advanced fraud detection signals
+loadStripe.setLoadParameters({ advancedFraudSignals: false });
+
+const stripePromise = loadStripe('pk_live_YourLivePublishableKey'); // Replace with your live publishable key
+
+const initializeStripe = async () => {
+  const stripe = await stripePromise;
+  const elements = stripe.elements();
+  const cardElement = elements.create('card');
   cardElement.mount('#card-element');
 
   const form = document.getElementById('payment-form');
-  const messageDiv = document.getElementById('message');
-  const cardErrors = document.getElementById('card-errors');
+  const message = document.getElementById('message');
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    const email = document.getElementById('email').value;
-    messageDiv.textContent = 'Processing payment...';
+    const emailInput = document.getElementById('email');
+    const email = emailInput.value;
+
+    message.textContent = 'Processing payment...';
 
     try {
-      // Call the serverless function to create a Payment Intent
-      const response = await fetch('/api/process-payment', {
+      const response = await fetch('/.netlify/functions/process-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       });
 
-      const { clientSecret, error } = await response.json();
+      const { clientSecret } = await response.json();
 
-      if (error) {
-        messageDiv.textContent = error;
-        return;
-      }
-
-      // Confirm the payment with the clientSecret
       const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardElement
-        }
+        payment_method: { card: cardElement }
       });
 
       if (result.error) {
-        messageDiv.textContent = result.error.message;
+        message.textContent = result.error.message;
       } else if (result.paymentIntent.status === 'succeeded') {
-        messageDiv.textContent = 'Payment successful! Check your email for the sheet music.';
-        form.reset();
+        message.textContent = 'Payment successful! Check your email for the sheet music.';
       }
-    } catch (err) {
-      messageDiv.textContent = 'An error occurred. Please try again.';
+    } catch (error) {
+      message.textContent = 'An error occurred. Please try again.';
     }
   });
-});
+};
+
+initializeStripe();
