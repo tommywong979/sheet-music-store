@@ -2,6 +2,12 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const axios = require('axios');
 const nodemailer = require('nodemailer');
 
+// Debug: Log environment variables to confirm they're set
+console.log('STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY);
+console.log('STRIPE_WEBHOOK_SECRET:', process.env.STRIPE_WEBHOOK_SECRET);
+console.log('GMAIL_USER:', process.env.GMAIL_USER);
+console.log('GMAIL_PASS:', process.env.GMAIL_PASS);
+
 // Set up the Gmail transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -16,6 +22,13 @@ exports.handler = async (event) => {
     // Verify the webhook signature
     const sig = event.headers['stripe-signature'];
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    // Debug: Log the webhook secret
+    console.log('Webhook Secret being used:', webhookSecret);
+    if (!webhookSecret) {
+      throw new Error('STRIPE_WEBHOOK_SECRET is undefined');
+    }
+
     const stripeEvent = stripe.webhooks.constructEvent(event.body, sig, webhookSecret);
 
     // Handle the payment_intent.succeeded event
@@ -52,6 +65,7 @@ exports.handler = async (event) => {
       };
 
       await transporter.sendMail(mailOptions);
+      console.log('Email sent successfully to:', email);
     }
 
     return {
