@@ -1,6 +1,6 @@
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #f8f9fa;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
   margin: 0;
   padding: 0;
   display: flex;
@@ -10,64 +10,86 @@ body {
 }
 
 .container {
-  background: white;
-  padding: 2rem;
+  background-color: #fff;
+  padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 400px;
-  width: 100%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
 }
 
 h1 {
-  font-size: 1.5rem;
-  color: #32325d;
-  margin-bottom: 1rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.screenshot-container {
+  margin-bottom: 20px;
+}
+
+.sheet-music-screenshot {
+  max-width: 100%;
+  height: auto;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: block;
+  margin: 0 auto;
 }
 
 p {
-  color: #6772e5;
-  margin-bottom: 1.5rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
 }
 
 label {
   display: block;
-  margin-bottom: 0.5rem;
-  color: #32325d;
-  font-weight: 500;
+  margin-bottom: 5px;
+  color: #333;
 }
 
-input, #card-element {
+input[type="email"] {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 1rem;
-  border: 1px solid #d1d5db;
+  padding: 8px;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 16px;
+  box-sizing: border-box;
 }
 
 #card-element {
+  border: 1px solid #ddd;
   padding: 10px;
-  background: #fff;
+  border-radius: 4px;
+}
+
+#card-errors {
+  color: #ff0000;
+  margin-top: 5px;
 }
 
 button {
-  width: 100%;
-  padding: 12px;
-  background: #6772e5;
-  color: white;
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 20px;
   border: none;
   border-radius: 4px;
-  font-size: 16px;
   cursor: pointer;
-  transition: background 0.2s;
+  font-size: 16px;
+  margin-top: 10px;
+  width: 100%;
 }
 
 button:hover {
-  background: #5469d4;
+  background-color: #0056b3;
 }
 
-#card-errors, #message {
-  color: #fa755a;
-  margin-top: 0.5rem;
-  min-height: 20px;
+#message {
+  margin-top: 20px;
+  color: #333;
 }
