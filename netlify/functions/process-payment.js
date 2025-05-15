@@ -1,7 +1,6 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const sgMail = require('@sendgrid/mail');
-const fs = require('fs');
-const path = require('path');
+const pdfBase64 = require('./pdfBase64');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -15,16 +14,6 @@ exports.handler = async (event) => {
         body: JSON.stringify({ error: 'Email is required' })
       };
     }
-
-    // Debug: Log the working directory and public directory contents
-    console.log('Current directory:', __dirname);
-    console.log('Files in current directory:', fs.readdirSync('.'));
-    const publicPath = '/var/task/public';
-    console.log('Public directory:', publicPath);
-    console.log('Files in public directory:', fs.readdirSync(publicPath));
-    const pdfPath = path.resolve(publicPath, 'sheet-music.pdf');
-    console.log('Resolved PDF path:', pdfPath);
-    console.log('Does PDF exist?', fs.existsSync(pdfPath));
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: 1000,
@@ -40,7 +29,7 @@ exports.handler = async (event) => {
       text: 'Thank you for your purchase! Your sheet music is attached.',
       attachments: [
         {
-          content: require('fs').readFileSync(pdfPath).toString('base64'),
+          content: pdfBase64,
           filename: 'sheet_music.pdf',
           type: 'application/pdf',
           disposition: 'attachment'
