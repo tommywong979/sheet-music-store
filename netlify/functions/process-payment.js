@@ -1,11 +1,4 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const axios = require('axios');
-const mailgun = require('mailgun-js');
-
-const mg = mailgun({
-  apiKey: process.env.MAILGUN_API_KEY.replace('key-', ''), // Remove 'key-' prefix
-  domain: process.env.MAILGUN_DOMAIN
-});
 
 exports.handler = async (event) => {
   try {
@@ -19,30 +12,11 @@ exports.handler = async (event) => {
     }
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 400,
-      currency: 'hkd',
+      amount: 100, // $1.00
+      currency: 'usd',
       payment_method_types: ['card'],
       receipt_email: email
     });
-
-    const pdfUrl = 'https://drive.google.com/file/d/1IQ0OEvVBuNwTj-AvvsfCSiaSNu8WnEjY/view?usp=drive_link'; // Replace with your direct download URL
-    const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
-    const pdfBuffer = Buffer.from(response.data);
-
-    const data = {
-      from: 'tommynick979@gmail.com',
-      to: email,
-      subject: 'Your Sheet Music Purchase',
-      text: 'Thank you for your purchase! Your sheet music is attached.',
-      html: '<p>Thank you for your purchase! Your sheet music is attached.</p>',
-      attachment: {
-        data: pdfBuffer,
-        filename: 'sheet_music.pdf',
-        contentType: 'application/pdf'
-      }
-    };
-
-    await mg.messages().send(data);
 
     return {
       statusCode: 200,
