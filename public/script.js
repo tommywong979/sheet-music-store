@@ -1,7 +1,4 @@
-import { loadStripe } from '@stripe/stripe-js/pure';
-
-// Disable advanced fraud detection signals
-loadStripe.setLoadParameters({ advancedFraudSignals: false });
+import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe('pk_live_YourLivePublishableKey'); // Replace with your live publishable key
 
