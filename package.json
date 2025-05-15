@@ -1,18 +1,16 @@
 {
   "name": "sheet-music-store",
   "version": "1.0.0",
+  "description": "Sheet music store with Stripe payments",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
-    "@sendgrid/mail": "^8.1.5",
-    "@stripe/stripe-js": "^7.3.0",
-    "dotenv": "^16.5.0",
-    "stripe": "^18.1.0"
+    "@stripe/stripe-js": "^3.5.0",
+    "stripe": "^15.8.0",
+    "@sendgrid/mail": "^8.1.3",
+    "dotenv": "^16.4.5",
+    "axios": "^1.7.7"
   }
 }
