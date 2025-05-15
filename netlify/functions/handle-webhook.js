@@ -44,7 +44,7 @@ exports.handler = async (event) => {
       }
 
       // Download the PDF
-      const pdfUrl = 'https://drive.google.com/uc?export=download&id=YOUR_FILE_ID'; // Replace with your direct download URL
+      const pdfUrl = 'https://drive.google.com/uc?export=download&id=1IQ0OEvVBuNwTj-AvvsfCSiaSNu8WnEjY'; // Replace with your direct download URL
       const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
       const pdfBuffer = Buffer.from(response.data);
 
