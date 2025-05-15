@@ -46,7 +46,7 @@ exports.handler = async (event) => {
     text: 'Thank you for your purchase! Your sheet music is attached.',
     attachments: [
       {
-        content: require('fs').readFileSync('./public/sheet_music.pdf').toString('base64'),
+        content: require('fs').readFileSync('./public/sheet-music.pdf').toString('base64'),
         filename: 'sheet_music.pdf',
         type: 'application/pdf',
         disposition: 'attachment'
