@@ -30,7 +30,7 @@ exports.handler = async (event) => {
       attachments: [
         {
           content: require('fs').readFileSync('./sheet-music.pdf').toString('base64'),
-          filename: 'sheet_music.pdf',
+          filename: 'sheet-music.pdf',
           type: 'application/pdf',
           disposition: 'attachment'
         }
