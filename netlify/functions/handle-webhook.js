@@ -51,8 +51,22 @@ exports.handler = async (event) => {
         };
       }
 
+      // Fetch the latest paymentIntent to ensure receipt_url is populated
+      const updatedPaymentIntent = await stripe.paymentIntents.retrieve(paymentIntent.id);
+
+      // Fetch payment method details to get the card last 4 digits
+      let cardLast4 = '4242'; // Default fallback
+      try {
+        const paymentMethod = await stripe.paymentMethods.retrieve(updatedPaymentIntent.payment_method);
+        if (paymentMethod.card) {
+          cardLast4 = paymentMethod.card.last4;
+        }
+      } catch (error) {
+        console.error('Failed to fetch payment method details:', error.message);
+      }
+
       // Download the PDF
-      const pdfUrl = 'https://tommywongsheetmusic.netlify.app/sheet-music.pdf';
+      const pdfUrl = 'https://tommywongsheetmusic.netlify.app/sheet_music.pdf';
       let pdfBuffer;
       try {
         console.log('Attempting to download PDF from:', pdfUrl);
@@ -75,18 +89,18 @@ exports.handler = async (event) => {
 
       // Send the email with the PDF attachment
       const mailOptions = {
-        from: `"MyShop" <${process.env.GMAIL_USER}>`, // Replace "MyShop" with your shop name
+        from: `"Tommy Wong's Sheet Music" <${process.env.GMAIL_USER}>`,
         to: email,
-        subject: 'Receipt from Tommy Wong sheet music',
-        text: `Tommy Wong sheet music charged you ${currency} ${amount} on ${paymentDate}. Your sheet music is attached.\n\nTransaction ID: ${paymentIntent.id}`,
+        subject: 'Receipt from Tommy Wong\'s Sheet Music',
+        text: `Tommy Wong's Sheet Music charged you ${currency} ${amount} on ${paymentDate}. Your sheet music is attached.\n\nTransaction ID: ${paymentIntent.id}`,
         html: `
           <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <!-- Header -->
             <tr>
               <td align="center" style="padding: 20px;">
-                <h1 style="color: #333333; font-size: 24px; margin: 0;">MyShop</h1>
+                <h1 style="color: #333333; font-size: 24px; margin: 0;">Tommy Wong's Sheet Music</h1>
                 <p style="color: #333333; font-size: 16px; font-weight: bold; margin: 10px 0;">
-                  MyShop charged you ${currency} ${amount}
+                  Tommy Wong's Sheet Music charged you ${currency} ${amount}
                 </p>
                 <p style="color: #666666; font-size: 14px; margin: 0;">
                   You paid on ${paymentDate}
@@ -98,7 +112,7 @@ exports.handler = async (event) => {
             <tr>
               <td align="center" bgcolor="#f5f5f5" style="padding: 20px;">
                 <p style="color: #333333; font-size: 16px; font-weight: bold; margin: 0 0 10px;">
-                  Receipt from MyShop
+                  Receipt from Tommy Wong's Sheet Music
                 </p>
                 <p style="color: #333333; font-size: 24px; font-weight: bold; margin: 0 0 10px;">
                   ${currency} ${amount}
@@ -114,7 +128,7 @@ exports.handler = async (event) => {
                   </tr>
                   <tr>
                     <td width="40%">Payment method:</td>
-                    <td>Card ending in 4242</td> <!-- Placeholder; see note below -->
+                    <td>Card ending in ${cardLast4}</td>
                   </tr>
                 </table>
               </td>
@@ -123,7 +137,7 @@ exports.handler = async (event) => {
             <!-- Button -->
             <tr>
               <td align="center" style="padding: 20px;">
-                <a href="${paymentIntent.receipt_url || 'https://myshop.netlify.app/receipt'}" 
+                <a href="${updatedPaymentIntent.receipt_url || 'https://tommywongsheetmusic.netlify.app/receipt'}" 
                    style="display: inline-block; padding: 10px 20px; background-color: #6772e5; color: #ffffff; text-decoration: none; font-size: 14px; border-radius: 4px;">
                   View your receipt
                 </a>
@@ -135,10 +149,10 @@ exports.handler = async (event) => {
               <td style="padding: 20px 0;">
                 <hr style="border: 0; border-top: 1px solid #e0e0e0;" />
                 <p style="text-align: center; color: #666666; font-size: 12px; margin: 10px 0;">
-                  Powered by MyShop
+                  Powered by Tommy Wong's Sheet Music
                 </p>
                 <p style="text-align: center; color: #666666; font-size: 12px; margin: 0;">
-                  <a href="https://myshop.netlify.app/unsubscribe?email=${encodeURIComponent(email)}" 
+                  <a href="https://tommywongsheetmusic.netlify.app/unsubscribe?email=${encodeURIComponent(email)}" 
                      style="color: #6772e5; text-decoration: none;">
                     Manage your email preferences
                   </a>
