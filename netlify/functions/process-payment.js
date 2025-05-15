@@ -23,9 +23,6 @@ exports.handler = async (event) => {
         enabled: true,
         allow_redirects: 'never'
       },
-      radar_options: {
-        session: null
-      }
     });
 
     const msg = {
