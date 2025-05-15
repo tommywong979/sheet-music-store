@@ -15,7 +15,7 @@ exports.handler = async (event) => {
     }
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 1000, // $10.00 in cents
+      amount: 1000,
       currency: 'usd',
       payment_method_types: ['card'],
       receipt_email: email,
@@ -24,40 +24,36 @@ exports.handler = async (event) => {
         allow_redirects: 'never'
       },
       radar_options: {
-        session: null // Disable advanced fraud detection
+        session: null
       }
     });
 
-   10nents.create({
-      clientSecret: paymentIntent.client_secret
-    });
+    const msg = {
+      to: email,
+      from: 'tommywong979@gmail.com',
+      subject: 'Your Sheet Music Purchase',
+      text: 'Thank you for your purchase! Your sheet music is attached.',
+      attachments: [
+        {
+          content: require('fs').readFileSync('./sheet-music.pdf').toString('base64'),
+          filename: 'sheet_music.pdf',
+          type: 'application/pdf',
+          disposition: 'attachment'
+        }
+      ]
+    };
+
+    await sgMail.send(msg);
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ clientSecret: paymentIntent.client_secret })
+    };
   } catch (error) {
+    console.error('Function error:', error.message, error.stack);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Server error' })
+      body: JSON.stringify({ error: error.message || 'Server error' })
     };
   }
-
-  // Send email with PDF attachment
-  const msg = {
-    to: email,
-    from: 'tommynick979@gmail.com', // Replace with your verified SendGrid email
-    subject: 'Your Sheet Music Purchase',
-    text: 'Thank you for your purchase! Your sheet music is attached.',
-    attachments: [
-      {
-        content: require('fs').readFileSync('./public/sheet-music.pdf').toString('base64'),
-        filename: 'sheet_music.pdf',
-        type: 'application/pdf',
-        disposition: 'attachment'
-      }
-    ]
-  };
-
-  await sgMail.send(msg);
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ clientSecret: paymentIntent.client_secret })
-  };
 };
