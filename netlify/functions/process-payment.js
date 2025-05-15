@@ -1,8 +1,11 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const sgMail = require('@sendgrid/mail');
 const axios = require('axios');
+const mailgun = require('mailgun-js');
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const mg = mailgun({
+  apiKey: process.env.MAILGUN_API_KEY.replace('key-', ''), // Remove 'key-' prefix
+  domain: process.env.MAILGUN_DOMAIN
+});
 
 exports.handler = async (event) => {
   try {
@@ -22,29 +25,24 @@ exports.handler = async (event) => {
       receipt_email: email
     });
 
-    // Download the PDF from the cloud storage URL
-    const pdfUrl = 'https://drive.google.com/file/d/1IQ0OEvVBuNwTj-AvvsfCSiaSNu8WnEjY/view?usp=drive_link'; // Replace with your direct download URL
+    const pdfUrl = 'https://drive.google.com/uc?export=download&id=YOUR_FILE_ID'; // Replace with your direct download URL
     const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
     const pdfBuffer = Buffer.from(response.data);
 
-    // Attach the PDF to the email
-    const msg = {
-      to: email,
+    const data = {
       from: 'tommynick979@gmail.com',
+      to: email,
       subject: 'Your Sheet Music Purchase',
       text: 'Thank you for your purchase! Your sheet music is attached.',
       html: '<p>Thank you for your purchase! Your sheet music is attached.</p>',
-      attachments: [
-        {
-          content: pdfBuffer.toString('base64'),
-          filename: 'sheet_music.pdf',
-          type: 'application/pdf',
-          disposition: 'attachment'
-        }
-      ]
+      attachment: {
+        data: pdfBuffer,
+        filename: 'sheet_music.pdf',
+        contentType: 'application/pdf'
+      }
     };
 
-    await sgMail.send(msg);
+    await mg.messages().send(data);
 
     return {
       statusCode: 200,
