@@ -52,7 +52,7 @@ exports.handler = async (event) => {
       }
 
       // Download the PDF
-      const pdfUrl = 'https://tommywongsheetmusic.netlify.app/sheet-music.pdf'; // Updated to Netlify URL
+      const pdfUrl = 'https://myshop.netlify.app/sheet_music.pdf'; // Updated to Netlify URL
       let pdfBuffer;
       try {
         console.log('Attempting to download PDF from:', pdfUrl);
@@ -68,11 +68,57 @@ exports.handler = async (event) => {
       const amount = (paymentIntent.amount / 100).toFixed(2);
       const currency = paymentIntent.currency.toUpperCase();
       const mailOptions = {
-        from: process.env.GMAIL_USER,
+        from: `"MyShop" <${process.env.GMAIL_USER}>`,
         to: email,
         subject: 'Receipt - Your Sheet Music Purchase',
         text: `Thank you for your purchase of ${currency} ${amount}! Your sheet music is attached.\n\nTransaction ID: ${paymentIntent.id}\nDate: ${new Date(paymentIntent.created * 1000).toISOString()}`,
-        html: `<p>Thank you for your purchase of ${currency} ${amount}! Your sheet music is attached.</p><p><strong>Transaction ID:</strong> ${paymentIntent.id}</p><p><strong>Date:</strong> ${new Date(paymentIntent.created * 1000).toISOString()}</p>`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+            <!-- Header -->
+            <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px solid #e0e0e0;">
+              <h1 style="color: #333; margin: 0;">MyShop</h1>
+              <p style="color: #666; font-size: 14px;">Your trusted source for sheet music</p>
+            </div>
+
+            <!-- Body -->
+            <div style="padding: 20px 0;">
+              <h2 style="color: #333;">Thank You for Your Purchase!</h2>
+              <p style="color: #666; font-size: 16px;">
+                We’ve received your payment of <strong>${currency} ${amount}</strong>. Your sheet music is attached below.
+              </p>
+              <table style="width: 100%; margin: 20px 0; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px; color: #666; font-size: 14px; border-bottom: 1px solid #e0e0e0;">
+                    <strong>Transaction ID:</strong>
+                  </td>
+                  <td style="padding: 8px; color: #333; font-size: 14px; border-bottom: 1px solid #e0e0e0;">
+                    ${paymentIntent.id}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; color: #666; font-size: 14px; border-bottom: 1px solid #e0e0e0;">
+                    <strong>Date:</strong>
+                  </td>
+                  <td style="padding: 8px; color: #333; font-size: 14px; border-bottom: 1px solid #e0e0e0;">
+                    ${new Date(paymentIntent.created * 1000).toISOString()}
+                  </td>
+                </tr>
+              </table>
+              <p style="color: #666; font-size: 14px;">
+                If you have any questions, feel free to reply to this email or contact us at <a href="mailto:support@myshop.com" style="color: #007bff; text-decoration: none;">support@myshop.com</a>.
+              </p>
+            </div>
+
+            <!-- Footer -->
+            <div style="text-align: center; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+              <p>© ${new Date().getFullYear()} MyShop. All rights reserved.</p>
+              <p>
+                <a href="https://myshop.netlify.app" style="color: #007bff; text-decoration: none;">Visit our website</a> | 
+                <a href="https://myshop.netlify.app/unsubscribe?email=${encodeURIComponent(email)}" style="color: #007bff; text-decoration: none;">Unsubscribe</a>
+              </p>
+            </div>
+          </div>
+        `,
         attachments: [
           {
             filename: 'sheet_music.pdf',
