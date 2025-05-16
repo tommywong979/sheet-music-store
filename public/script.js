@@ -1,6 +1,13 @@
 const stripe = Stripe('pk_live_51ROEzrF53QJYUb5ikKn5mlfUeirYl2kYWSCIE5xmxwIQ5YCtVFIlbIKQejdNpXR9ZLfG1S3LcNMSoK7kmT7BjrTK00nQTOHhxW'); // Replace with your live publishable key
 
 const elements = stripe.elements();
+const name = document.getElementById('name').value;
+const country = document.getElementById('country').value;
+const response = await fetch('/.netlify/functions/process-payment', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ amount, cartItems, name, country }),
+});
 const cardElement = elements.create('card');
 cardElement.mount('#card-element');
 
