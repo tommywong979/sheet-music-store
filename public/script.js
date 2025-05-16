@@ -1,7 +1,19 @@
 const stripe = Stripe('pk_test_51PvljW2LqWmcWOmS7OaJIGpMPvffxOaV3bC4r5X6SOfa5xR3Y2eO2EpBXIx1yD6hMKxOHYdxl6Yc1eA4M7gCrM3Z00kM3WvW5L');
-const elements = stripe Fridays.elements();
+const elements = stripe.elements();
 
-const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+
+// Add a sample cart item if cart is empty (for testing)
+if (cartItems.length === 0) {
+  cartItems = [
+    {
+      name: "Sample Sheet Music",
+      price: 5.00
+    }
+  ];
+  localStorage.setItem('cart', JSON.stringify(cartItems));
+}
+
 const cartElement = document.getElementById('cart-items');
 const totalElement = document.getElementById('cart-total');
 const paymentForm = document.getElementById('payment-form');
@@ -47,6 +59,12 @@ cardElement.on('change', (event) => {
 paymentForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
+  // Prevent submission if cart is empty
+  if (total <= 0) {
+    cardErrors.textContent = 'Your cart is empty. Please add items to proceed.';
+    return;
+  }
+
   const name = document.getElementById('name').value;
   const country = document.getElementById('country').value;
 
@@ -84,6 +102,8 @@ paymentForm.addEventListener('submit', async (e) => {
     if (result.error) {
       cardErrors.textContent = result.error.message;
     } else if (result.paymentIntent.status === 'succeeded') {
+      // Clear cart after successful payment
+      localStorage.removeItem('cart');
       // Redirect to thank you page
       window.location.href = '/thank-you.html';
     }
