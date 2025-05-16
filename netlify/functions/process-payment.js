@@ -3,11 +3,17 @@ const nodemailer = require('nodemailer');
 
 exports.handler = async (event) => {
   try {
-    const { amount, cartItems, name, country } = JSON.parse(event.body);
+    const { amount, cartItems, name, email, country } = JSON.parse(event.body);
+
+    // Validate email
+    if (!email) {
+      throw new Error('Email address is required');
+    }
 
     // Create or retrieve a customer
     const customer = await stripe.customers.create({
       name: name,
+      email: email,
       address: {
         country: country,
       },
@@ -26,6 +32,7 @@ exports.handler = async (event) => {
       description: `Sheet Music Purchase: ${cartItems.map(item => item.name).join(', ')}`,
       metadata: {
         name: name,
+        email: email,
         country: country,
         cartItems: JSON.stringify(cartItems),
       },
@@ -47,7 +54,7 @@ exports.handler = async (event) => {
 
     const mailOptions = {
       from: '"Tommy Wong\'s Sheet Music" <tommynick979@gmail.com>',
-      to: customer.email || 'tommynick979@gmail.com', // Fallback to your email
+      to: email, // Use the customer's email
       subject: 'Your Sheet Music Purchase Confirmation',
       html: `
         <table style="width: 100%; max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
@@ -80,8 +87,8 @@ exports.handler = async (event) => {
       `,
       attachments: [
         {
-          filename: 'sheet-music.pdf',
-          path: './public/sheet-music.pdf', // Ensure this file exists in your Netlify public folder
+          filename: 'sheet_music.pdf',
+          path: './public/sheet_music.pdf', // Ensure this file exists in your Netlify public folder
         },
       ],
     };
