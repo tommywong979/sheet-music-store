@@ -66,6 +66,7 @@ paymentForm.addEventListener('submit', async (e) => {
   }
 
   const name = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
   const country = document.getElementById('country').value;
 
   try {
@@ -77,6 +78,7 @@ paymentForm.addEventListener('submit', async (e) => {
         amount: total,
         cartItems,
         name,
+        email,
         country,
       }),
     });
@@ -88,12 +90,13 @@ paymentForm.addEventListener('submit', async (e) => {
       return;
     }
 
-    // Confirm card payment
+    // Confirm card payment with name and country in billing_details
     const result = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
         card: cardElement,
         billing_details: {
           name: name,
+          email: email,
           address: { country: country },
         },
       },
