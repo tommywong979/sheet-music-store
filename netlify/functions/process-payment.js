@@ -22,10 +22,10 @@ exports.handler = async (event) => {
       },
     });
 
-    // Create a PaymentIntent
+    // Create a PaymentIntent with HKD currency
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100, // Convert to cents
-      currency: 'usd',
+      amount: Math.round(amount), // HKD is a zero-decimal currency, no need to multiply by 100
+      currency: 'hkd', // Changed to HKD
       customer: customer.id,
       payment_method_types: ['card'],
       confirmation_method: 'manual',
@@ -70,9 +70,9 @@ exports.handler = async (event) => {
               <p>Thank you for your purchase!</p>
               <p><strong>Items Purchased:</strong></p>
               <ul>
-                ${cartItems.map(item => `<li>${item.name} - $${item.price.toFixed(2)}</li>`).join('')}
+                ${cartItems.map(item => `<li>${item.name} - ${item.price.toFixed(2)} HKD</li>`).join('')}
               </ul>
-              <p><strong>Total:</strong> $${(amount).toFixed(2)}</p>
+              <p><strong>Total:</strong> ${amount.toFixed(2)} HKD</p>
               <p><strong>Country:</strong> ${country}</p>
               <p><strong>Product Description:</strong> Sheet Music Delivery</p>
               <p>Your sheet music will be delivered via email soon.</p>
@@ -87,8 +87,8 @@ exports.handler = async (event) => {
       `,
       attachments: [
         {
-          filename: 'sheet-music.pdf',
-          path: './public/sheet-music.pdf', // Ensure this file exists in your Netlify public folder
+          filename: 'sheet_music.pdf',
+          path: './public/sheet_music.pdf', // Ensure this file exists in your Netlify public folder
         },
       ],
     };
