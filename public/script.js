@@ -8,7 +8,7 @@ if (cartItems.length === 0) {
   cartItems = [
     {
       name: "Sample Sheet Music",
-      price: 5.00
+      price: 4.00 // Changed to 4 HKD
     }
   ];
   localStorage.setItem('cart', JSON.stringify(cartItems));
@@ -27,11 +27,11 @@ function updateCart() {
   total = 0;
   cartItems.forEach(item => {
     const li = document.createElement('li');
-    li.textContent = `${item.name} - $${item.price.toFixed(2)}`;
+    li.textContent = `${item.name} - ${item.price.toFixed(2)} HKD`; // Updated to display HKD
     cartElement.appendChild(li);
     total += item.price;
   });
-  totalElement.textContent = total.toFixed(2);
+  totalElement.textContent = total.toFixed(2) + " HKD"; // Updated to display HKD
 }
 
 // Initialize Stripe Card Element
