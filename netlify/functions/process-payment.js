@@ -31,6 +31,11 @@ exports.handler = async (event) => {
       },
     });
 
+    // Validate email credentials
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      throw new Error('Missing email credentials: EMAIL_USER or EMAIL_PASS not set');
+    }
+
     // Send email with purchase confirmation
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -68,7 +73,7 @@ exports.handler = async (event) => {
           </tr>
           <tr>
             <td style="background-color: #f8f8f8; padding: 20px; text-align: center;">
-              <p>&copy; 2025 Tommy Wong's Sheet Music</p>
+              <p>© 2025 Tommy Wong's Sheet Music</p>
             </td>
           </tr>
         </table>
@@ -91,7 +96,12 @@ exports.handler = async (event) => {
       }),
     };
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in process-payment:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code || 'N/A',
+      eventBody: event.body, // Log the request body for debugging
+    });
     return {
       statusCode: 400,
       body: JSON.stringify({ error: error.message }),
