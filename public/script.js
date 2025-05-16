@@ -1,46 +1,96 @@
-const stripe = Stripe('pk_live_51ROEzrF53QJYUb5ikKn5mlfUeirYl2kYWSCIE5xmxwIQ5YCtVFIlbIKQejdNpXR9ZLfG1S3LcNMSoK7kmT7BjrTK00nQTOHhxW'); // Replace with your live publishable key
+const stripe = Stripe('pk_test_51PvljW2LqWmcWOmS7OaJIGpMPvffxOaV3bC4r5X6SOfa5xR3Y2eO2EpBXIx1yD6hMKxOHYdxl6Yc1eA4M7gCrM3Z00kM3WvW5L');
+const elements = stripe Fridays.elements();
 
-const elements = stripe.elements();
-const name = document.getElementById('name').value;
-const country = document.getElementById('country').value;
-const response = await fetch('/.netlify/functions/process-payment', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ amount, cartItems, name, country }),
+const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+const cartElement = document.getElementById('cart-items');
+const totalElement = document.getElementById('cart-total');
+const paymentForm = document.getElementById('payment-form');
+const cardErrors = document.getElementById('card-errors');
+
+let total = 0;
+
+// Initialize cart
+function updateCart() {
+  cartElement.innerHTML = '';
+  total = 0;
+  cartItems.forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = `${item.name} - $${item.price.toFixed(2)}`;
+    cartElement.appendChild(li);
+    total += item.price;
+  });
+  totalElement.textContent = total.toFixed(2);
+}
+
+// Initialize Stripe Card Element
+const cardElement = elements.create('card', {
+  style: {
+    base: {
+      fontSize: '16px',
+      color: '#32325d',
+      '::placeholder': { color: '#aab7c4' },
+    },
+    invalid: { color: '#fa755a' },
+  },
 });
-const cardElement = elements.create('card');
 cardElement.mount('#card-element');
 
-const form = document.getElementById('payment-form');
-const message = document.getElementById('message');
+cardElement.on('change', (event) => {
+  if (event.error) {
+    cardErrors.textContent = event.error.message;
+  } else {
+    cardErrors.textContent = '';
+  }
+});
 
-form.addEventListener('submit', async (event) => {
-  event.preventDefault();
+// Handle form submission
+paymentForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-  const emailInput = document.getElementById('email');
-  const email = emailInput.value;
-
-  message.textContent = 'Processing payment...';
+  const name = document.getElementById('name').value;
+  const country = document.getElementById('country').value;
 
   try {
+    // Create PaymentIntent
     const response = await fetch('/.netlify/functions/process-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({
+        amount: total,
+        cartItems,
+        name,
+        country,
+      }),
     });
 
-    const { clientSecret } = await response.json();
+    const { clientSecret, error } = await response.json();
 
+    if (error) {
+      cardErrors.textContent = error;
+      return;
+    }
+
+    // Confirm card payment
     const result = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: { card: cardElement }
+      payment_method: {
+        card: cardElement,
+        billing_details: {
+          name: name,
+          address: { country: country },
+        },
+      },
     });
 
     if (result.error) {
-      message.textContent = result.error.message;
+      cardErrors.textContent = result.error.message;
     } else if (result.paymentIntent.status === 'succeeded') {
-      message.textContent = 'Payment successful! Check your email for the sheet music.';
+      // Redirect to thank you page
+      window.location.href = '/thank-you.html';
     }
   } catch (error) {
-    message.textContent = 'An error occurred. Please try again.';
+    cardErrors.textContent = 'An error occurred. Please try again.';
   }
 });
+
+// Initialize cart on page load
+updateCart();
