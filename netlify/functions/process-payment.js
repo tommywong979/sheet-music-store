@@ -87,8 +87,8 @@ exports.handler = async (event) => {
       `,
       attachments: [
         {
-          filename: 'sheet_music.pdf',
-          path: './public/sheet_music.pdf', // Ensure this file exists in your Netlify public folder
+          filename: 'sheet-music.pdf',
+          path: './public/sheet-music.pdf', // Ensure this file exists in your Netlify public folder
         },
       ],
     };
